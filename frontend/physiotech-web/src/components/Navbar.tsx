@@ -1,40 +1,57 @@
-export function Navbar() {
+import { useState } from "react";
+
+type NavItem = { id: string; label: string };
+
+const NAV: NavItem[] = [
+  { id: "o-nas", label: "O nas" },
+  { id: "jak-to-dziala", label: "Jak to działa" },
+  { id: "sprzet", label: "Sprzęt" },
+  { id: "faq", label: "FAQ" },
+];
+
+export default function Navbar() {
+  const [activeId, setActiveId] = useState<string>(NAV[0].id);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const currentId = hoveredId ?? activeId;
+
+  function goTo(id: string) {
+    setActiveId(id);
+
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.location.hash = `#${id}`;
+    }
+  }
+
   return (
-    <header className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-6 px-4 py-3">
-        <a href="#top" className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-xl bg-slate-900" />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold">PhysioTech</div>
-            <div className="text-xs text-slate-500">wypożyczalnia online</div>
-          </div>
-        </a>
+    <nav className="hidden md:flex items-center gap-2 text-sm">
+      {NAV.map((item) => {
+        const isActive = currentId === item.id;
 
-        <nav className="hidden items-center gap-6 text-sm text-slate-700 md:flex">
-          <a className="hover:text-slate-900" href="#about">O nas</a>
-          <a className="hover:text-slate-900" href="#how">Jak to działa</a>
-          <a className="hover:text-slate-900" href="#devices">Sprzęt</a>
-          <a className="hover:text-slate-900" href="#faq">FAQ</a>
-          <a className="hover:text-slate-900" href="#contact">Kontakt</a>
-        </nav>
-
-        <div className="ml-auto flex items-center gap-2">
-          <a
-            href="#devices"
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
-          >
-            Sprawdź ofertę
-          </a>
-
+        return (
           <button
-            className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 hover:bg-slate-50"
-            aria-label="Profil"
-            title="Profil"
+            key={item.id}
+            type="button"
+            onClick={() => goTo(item.id)}
+            onMouseEnter={() => setHoveredId(item.id)}
+            onMouseLeave={() => setHoveredId(null)}
+            onFocus={() => setHoveredId(item.id)}
+            onBlur={() => setHoveredId(null)}
+            className={[
+              "rounded-full px-4 py-2 font-medium transition-colors",
+              "ring-1 ring-transparent",
+              isActive
+                ? "bg-[#102363] text-white ring-[#102363]"
+                : "bg-transparent text-slate-700 hover:bg-[#102363] hover:text-white hover:ring-[#102363]",
+            ].join(" ")}
           >
-            <span className="text-sm">👤</span>
+            {item.label}
           </button>
-        </div>
-      </div>
-    </header>
+        );
+      })}
+    </nav>
   );
 }

@@ -1,49 +1,53 @@
-export function Hero() {
+import logon from "../assets/logon.png";
+
+type Props = {
+  apiUrl: string;
+};
+
+export default function Hero({ apiUrl }: Props) {
   return (
-    <section id="top" className="bg-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 px-4 py-12 md:grid-cols-2">
-        <div>
-          <div className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-            Sprzęt rehabilitacyjny na wynajem
-          </div>
+    <section className="grid gap-8 lg:grid-cols-2 items-center">
+      <div>
+        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
+          Wypożycz nowoczesny sprzęt rehabilitacyjny i odzyskaj pełną sprawność
+        </h1>
 
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-            Wypożycz nowoczesny sprzęt rehabilitacyjny i wracaj do sprawności
-          </h1>
+        <p className="mt-4 text-slate-600">
+          Prosty proces, przejrzyste ceny i szybkie zamówienie online.
+        </p>
 
-          <p className="mt-4 text-base leading-relaxed text-slate-600">
-            Rezerwujesz online, wybierasz daty i dostawę. Prosto, bez stresu, z czytelnymi kosztami.
-          </p>
+        <div className="mt-6 flex gap-3">
+          <a
+            href="#sprzet"
+            className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 transition"
+          >
+            Sprawdź naszą ofertę
+          </a>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="#devices"
-              className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-600"
-            >
-              Sprawdź naszą ofertę
-            </a>
-            <a
-              href="#how"
-              className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
-            >
-              Jak to działa
-            </a>
-          </div>
-
-          <div className="mt-6 text-xs text-slate-500">
-            Płatności i wysyłka będą dodane później. Teraz budujemy katalog i proces wypożyczenia.
-          </div>
+          <a
+            href="#jak-to-dziala"
+            className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 transition"
+          >
+            Jak to działa
+          </a>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-          <div className="grid aspect-[4/3] place-items-center rounded-2xl bg-white shadow-sm">
-            <div className="text-center">
-              <div className="text-sm font-semibold text-slate-800">Logo / grafika</div>
-              <div className="mt-2 text-xs text-slate-500">
-                Tu później podepniemy Twoją grafikę
-              </div>
-            </div>
-          </div>
+        <p className="mt-6 text-xs text-slate-500">API: {apiUrl}</p>
+      </div>
+
+      <div className="rounded-2xl bg-white p-8 ring-1 ring-slate-200/70 shadow-sm">
+        <div className="aspect-[4/3] rounded-xl bg-slate-50 ring-1 ring-slate-200/60 flex items-center justify-center">
+          <img
+            src={logon}
+            alt="PhysioTech"
+            className="max-h-40 w-auto object-contain opacity-90"
+          />
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs text-slate-600">
+          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Bezpiecznie</div>
+          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Szybko</div>
+          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Czytelnie</div>
         </div>
       </div>
     </section>
