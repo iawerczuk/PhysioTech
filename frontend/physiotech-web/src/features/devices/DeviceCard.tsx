@@ -54,7 +54,7 @@ export default function DeviceCard({ device }: Props) {
         <button
           type="button"
           className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition"
-          onClick={() => alert(`Wkrótce: dodawanie do wypożyczenia (deviceId=${device.id})`)}
+          onClick={() => alert(`Dodawanie do wypożyczenia (deviceId=${device.id})`)}
         >
           Wypożycz
         </button>
