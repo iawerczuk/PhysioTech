@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useActiveSection(ids: string[]) {
+export default function useActiveSection(ids: string[]) {
   const [activeId, setActiveId] = useState<string>(ids[0] ?? "");
 
   useEffect(() => {
