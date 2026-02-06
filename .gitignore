@@ -14,3 +14,6 @@
 **/*.db-wal
 
 **/keys/
+
+.DS_Store
+**/.DS_Store
