@@ -1,53 +1,64 @@
-import logon from "../assets/logon.png";
+import heroLogo from "../assets/logon.png";
 
-type Props = {
-  apiUrl: string;
-};
-
-export default function Hero({ apiUrl }: Props) {
+export default function Hero() {
   return (
-    <section className="grid gap-8 lg:grid-cols-2 items-center">
-      <div>
-        <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">
-          Wypożycz nowoczesny sprzęt rehabilitacyjny i odzyskaj pełną sprawność
-        </h1>
+    <section id="top" className="mt-10">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="rounded-3xl bg-white p-10 ring-1 ring-slate-200/70 shadow-sm">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <div>
+              <div className="inline-flex items-center rounded-full bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200/60">
+                Sprzęt rehabilitacyjny online
+              </div>
 
-        <p className="mt-4 text-slate-600">
-          Prosty proces, przejrzyste ceny i szybkie zamówienie online.
-        </p>
+              <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl leading-[1.08]">
+                <span className="block">Twoja determinacja.</span>
+                <span className="block text-[#102363]">Nasza technologia.</span>
+                <span className="block text-emerald-600">Wspólny cel.</span>
+              </h1>
 
-        <div className="mt-6 flex gap-3">
-          <a
-            href="#sprzet"
-            className="rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 transition"
-          >
-            Sprawdź naszą ofertę
-          </a>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-600">
+                Wypożycz profesjonalny sprzęt ortopedyczny sprawdzony w praktyce klinicznej. Skróć drogę do zdrowia dzięki technologii, której ufają fizjoterapeuci.
+              </p>
 
-          <a
-            href="#jak-to-dziala"
-            className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 transition"
-          >
-            Jak to działa
-          </a>
-        </div>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a
+                  href="#sprzet"
+                  className="
+                    h-11 rounded-full bg-emerald-600 px-6
+                    inline-flex items-center justify-center
+                    text-sm font-medium text-white
+                    transition hover:bg-emerald-700
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2
+                  "
+                >
+                Wybierz technologię, której ufają profesjonaliści
+                </a>
 
-        <p className="mt-6 text-xs text-slate-500">API: {apiUrl}</p>
-      </div>
+                <a
+                  href="#jak-to-dziala"
+                  className="
+                    h-11 rounded-full bg-white px-6
+                    inline-flex items-center justify-center
+                    text-sm font-medium text-slate-800
+                    ring-1 ring-slate-200
+                    transition hover:bg-slate-50
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#102363] focus-visible:ring-offset-2
+                  "
+                >
+                  Jak to działa
+                </a>
+              </div>
+            </div>
 
-      <div className="rounded-2xl bg-white p-8 ring-1 ring-slate-200/70 shadow-sm">
-        <div className="aspect-[4/3] rounded-xl bg-slate-50 ring-1 ring-slate-200/60 flex items-center justify-center">
-          <img
-            src={logon}
-            alt="PhysioTech"
-            className="max-h-40 w-auto object-contain opacity-90"
-          />
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-3 text-center text-xs text-slate-600">
-          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Bezpiecznie</div>
-          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Szybko</div>
-          <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200/60">Czytelnie</div>
+            <div className="flex justify-center lg:justify-end lg:pr-16">
+              <img
+                src={heroLogo}
+                alt="PhysioTech"
+                className="h-44 w-auto object-contain drop-shadow-sm"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>
