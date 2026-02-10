@@ -26,52 +26,41 @@ export default function HowItWorks({ steps }: Props) {
           const isActive = i === safeActive;
 
           return (
-            <div key={s.title} className="relative group h-full">
-              <div
-                className="
-                  pointer-events-none
-                  absolute -top-10 left-1/2 -translate-x-1/2
-                  rounded-lg bg-slate-900 px-3 py-1.5
-                  text-xs text-white
-                  opacity-0 scale-95
-                  transition
-                  group-hover:opacity-100 group-hover:scale-100
-                  whitespace-nowrap
-                  shadow-lg
-                "
-              >
-                Kliknij, aby zobaczyć szczegóły
-              </div>
-
+            <div key={s.title} className="relative h-full">
               <button
-                    type="button"
-                    onClick={() => setActive(i)}
-                    onMouseEnter={() => setActive(i)}
-                    onFocus={() => setActive(i)}
-                    className={[
-                      "h-full min-h-[220px] w-full text-left rounded-2xl p-6 ring-1 shadow-sm transition-colors duration-200",
-                      isActive
-                        ? "bg-[#102363] text-white ring-[#102363]"
-                        : "bg-white text-slate-900 ring-slate-200/70",
-                    ].join(" ")}
-                  >
-                    <div
-                      className={[
-                        "h-10 w-10 rounded-full flex items-center justify-center font-semibold ring-1",
-                        isActive
-                          ? "bg-white/15 text-white ring-white/20"
-                          : "bg-emerald-50 text-emerald-700 ring-emerald-200/60",
-                      ].join(" ")}
-                    >
-                      {i + 1}
-                    </div>
+                type="button"
+                onClick={() => setActive(i)}
+                onMouseEnter={() => setActive(i)}
+                onFocus={() => setActive(i)}
+                className={[
+                  "h-full min-h-[220px] w-full text-left rounded-2xl p-6 ring-1 shadow-sm transition-colors duration-200",
+                  isActive
+                    ? "bg-[#102363] text-white ring-[#102363]"
+                    : "bg-white text-slate-900 ring-slate-200/70",
+                ].join(" ")}
+              >
+                <div
+                  className={[
+                    "h-10 w-10 rounded-full flex items-center justify-center font-semibold ring-1",
+                    isActive
+                      ? "bg-white/15 text-white ring-white/20"
+                      : "bg-emerald-50 text-emerald-700 ring-emerald-200/60",
+                  ].join(" ")}
+                >
+                  {i + 1}
+                </div>
 
-  <h3 className="mt-4 font-medium text-lg">{s.title}</h3>
+                <h3 className="mt-4 font-medium text-lg">{s.title}</h3>
 
-  <p className={["mt-2 text-sm", isActive ? "text-white/90" : "text-slate-600"].join(" ")}>
-    {s.desc}
-  </p>
-</button>
+                <p
+                  className={[
+                    "mt-2 text-sm",
+                    isActive ? "text-white/90" : "text-slate-600",
+                  ].join(" ")}
+                >
+                  {s.desc}
+                </p>
+              </button>
             </div>
           );
         })}

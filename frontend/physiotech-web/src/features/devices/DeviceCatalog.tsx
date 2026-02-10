@@ -21,15 +21,17 @@ const DEVICE_CATEGORY_MAP: Record<number, Category[]> = {
   5: ["Kompresjoterapia", "Terapia zimnem"],
 };
 
-export default function DeviceCatalog() {
+type Props = {
+  onRequireAuth: () => void;
+};
+
+export default function DeviceCatalog({ onRequireAuth }: Props) {
   const [devices, setDevices] = useState<Device[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<Category>("Wszystkie");
-  const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<Category>("Wszystkie");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const currentCategory = hoveredCategory ?? selectedCategory;
 
   useEffect(() => {
     apiGet<Device[]>("/api/Devices")
@@ -42,36 +44,36 @@ export default function DeviceCatalog() {
   }, []);
 
   const filteredDevices = useMemo(() => {
-    if (currentCategory === "Wszystkie") return devices;
+    if (selectedCategory === "Wszystkie") return devices;
 
     return devices.filter((d) => {
       const cats = DEVICE_CATEGORY_MAP[d.id] ?? [];
-      return cats.includes(currentCategory);
+      return cats.includes(selectedCategory);
     });
-  }, [devices, currentCategory]);
+  }, [devices, selectedCategory]);
 
   return (
     <section id="sprzet" className="mt-16 scroll-mt-24">
-      
+      <div className="flex items-end justify-between gap-4">
+        <h2 className="text-xl font-semibold">Sprzęt</h2>
+
+      </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
         {CATEGORIES.map((cat) => {
-          const isActive = currentCategory === cat;
+          const isActive = selectedCategory === cat;
 
           return (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
-              onMouseEnter={() => setHoveredCategory(cat)}
-              onMouseLeave={() => setHoveredCategory(null)}
-              onFocus={() => setHoveredCategory(cat)}
-              onBlur={() => setHoveredCategory(null)}
               className={[
                 "rounded-full px-5 py-2 text-sm font-medium transition-colors duration-200",
+                "ring-1",
                 isActive
-                  ? "bg-[#102363] text-white"
-                  : "bg-white text-slate-700 ring-1 ring-slate-200",
+                  ? "bg-[#102363] text-white ring-[#102363]"
+                  : "bg-white text-slate-700 ring-slate-200 hover:bg-[#102363] hover:text-white hover:ring-[#102363]",
               ].join(" ")}
             >
               {cat}
@@ -86,11 +88,17 @@ export default function DeviceCatalog() {
       {!loading && !error && (
         <>
           {filteredDevices.length === 0 ? (
-            <p className="mt-8 text-slate-500">Brak urządzeń w tej kategorii.</p>
+            <p className="mt-8 text-slate-500">
+              Brak urządzeń w tej kategorii.
+            </p>
           ) : (
             <div className="mt-8 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredDevices.map((d) => (
-                <DeviceCard key={d.id} device={d} />
+                <DeviceCard
+                  key={d.id}
+                  device={d}
+                  onRequireAuth={onRequireAuth}
+                />
               ))}
             </div>
           )}

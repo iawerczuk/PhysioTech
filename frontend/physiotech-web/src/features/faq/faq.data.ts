@@ -10,7 +10,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     a: "Tak. Przedłużysz je w panelu klienta, a system przeliczy koszt automatycznie.",
   },
   {
-    q: "Jakie metody płatności akceptujecie?",
+    q: "Jakie metody płatności są akceptowane?",
     a: "Docelowo: BLIK, karty, Apple Pay, Google Pay. Na razie płatności są w trybie mock.",
   },
 ];

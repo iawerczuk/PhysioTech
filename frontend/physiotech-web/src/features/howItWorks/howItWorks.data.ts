@@ -1,4 +1,3 @@
-// src/features/howItWorks/howItWorks.data.ts
 import type { Step } from "../../types";
 
 export const HOW_IT_WORKS_STEPS: Step[] = [

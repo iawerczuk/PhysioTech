@@ -46,7 +46,6 @@ export default function Navbar({ active, onSelect }: Props) {
 
   return (
     <>
-      {/* DESKTOP */}
       <nav className="hidden md:flex items-center gap-2">
         {NAV_ITEMS.map((it) => {
           const isActive = activeSection === it.id && active === "none";
@@ -71,7 +70,6 @@ export default function Navbar({ active, onSelect }: Props) {
         </button>
       </nav>
 
-      {/* MOBILE: hamburger */}
       <button
         type="button"
         className="md:hidden inline-flex items-center justify-center rounded-full h-10 w-10 ring-1 ring-slate-200 bg-white hover:bg-slate-50 transition"
@@ -84,10 +82,8 @@ export default function Navbar({ active, onSelect }: Props) {
         </svg>
       </button>
 
-      {/* MOBILE DRAWER */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          {/* overlay */}
           <button
             type="button"
             className="absolute inset-0 bg-black/30"
@@ -95,7 +91,6 @@ export default function Navbar({ active, onSelect }: Props) {
             onClick={() => setMobileOpen(false)}
           />
 
-          {/* panel */}
           <div className="absolute right-3 top-3 w-[min(92vw,360px)] rounded-2xl bg-white ring-1 ring-slate-200 shadow-lg p-3">
             <div className="flex items-center justify-between px-2 py-1">
               <div className="text-sm font-semibold text-slate-900">Menu</div>
@@ -137,7 +132,6 @@ export default function Navbar({ active, onSelect }: Props) {
                 Konto
               </button>
 
-              {/* Kontakt w drawerze jako link */}
               <a
                 href="#kontakt"
                 onClick={() => setMobileOpen(false)}

@@ -1,15 +1,6 @@
 import type { Device } from "../../types";
 import { DEVICE_IMAGE_BY_ID } from "./deviceImages";
 
-
-function formatPLN(value: number) {
-  return new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 type Props = {
   device: Device;
 };
@@ -18,47 +9,54 @@ export default function DeviceCard({ device }: Props) {
   const img = DEVICE_IMAGE_BY_ID[device.id];
 
   return (
-    <article className="h-full rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-      {img && (
-        <img
-          src={img}
-          alt={device.name}
-          className="mb-4 h-40 w-full rounded-xl object-cover bg-slate-100"
-          loading="lazy"
-        />
-      )}
+    <article className="rounded-2xl bg-white ring-1 ring-slate-200/70 shadow-sm overflow-hidden flex flex-col">
+      <div className="h-44 bg-slate-50 ring-1 ring-slate-200/60 overflow-hidden">
+        {img ? (
+          <img
+            src={img}
+            alt={device.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="h-full w-full flex items-center justify-center text-sm text-slate-400">
+            Brak zdjęcia
+          </div>
+        )}
+      </div>
 
-      <h3 className="text-lg font-medium text-slate-900">{device.name}</h3>
-      <p className="mt-2 text-sm text-slate-600 line-clamp-3">{device.description}</p>
+      <div className="p-6 flex-1 flex flex-col">
+        <h3 className="text-lg font-semibold text-slate-900">{device.name}</h3>
 
-      <div className="mt-4 rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200/60">
-        <div className="text-xs text-slate-500">Cena za dzień</div>
-        <div className="mt-1 text-2xl font-semibold text-slate-900">
-          {formatPLN(device.pricePerDay)}
+        <p className="mt-2 text-sm text-slate-600">
+          {device.shortDescription}
+        </p>
+
+            <dl className="mt-5 text-sm">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+          <dt className="text-slate-500">Cena za dzień</dt>
+          <dd className="text-right font-semibold text-slate-900">
+            {device.pricePerDay} zł
+          </dd>
+
+          <dt className="text-slate-500">Kaucja</dt>
+          <dd className="text-right font-semibold text-slate-900">
+            {device.deposit} zł
+          </dd>
+
+          <dt className="text-slate-500">Dostępne</dt>
+          <dd className="text-right font-semibold text-slate-900">
+            {device.availableCount} szt.
+          </dd>
         </div>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between text-sm text-slate-700">
-        <span>Kaucja</span>
-        <span className="font-medium text-slate-900">{formatPLN(device.deposit)}</span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between">
-        <span className="text-sm text-slate-700">Dostępne</span>
-        <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200/60">
-          Dostępne: {device.availableQuantity}
-        </span>
-      </div>
-
-      <div className="mt-auto pt-6">
+      </dl>
+      </div>  
         <button
           type="button"
-          className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition"
-          onClick={() => alert(`Dodawanie do wypożyczenia (deviceId=${device.id})`)}
+          className="mt-6 h-11 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
         >
           Wypożycz
         </button>
-      </div>
     </article>
   );
 }
