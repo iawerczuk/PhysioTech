@@ -1,26 +1,59 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.OpenApi.Models;
 using PhysioTech.Api.Data;
-using Microsoft.AspNetCore.DataProtection;
-using System.IO;
-using System.Text.Json.Serialization;
+using PhysioTech.Api.Middleware;
 using PhysioTech.Api.Models;
-
+using PhysioTech.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(builder.Environment.ContentRootPath, "keys")));
-builder.Services.AddControllers()
+builder.Services
+    .AddControllers()
     .AddJsonOptions(o =>
         o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "PhysioTech.Api",
+        Version = "v1"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Wklej: Bearer {token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Default")));
 
@@ -35,15 +68,16 @@ builder.Services
     })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
-    .AddSignInManager();
+    .AddSignInManager<SignInManager<UserApp>>();
 
-var jwtSection = builder.Configuration.GetSection("Jwt");
-var keyBytes = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
+var jwt = builder.Configuration.GetSection("Jwt");
+var jwtKey = jwt["Key"] ?? throw new InvalidOperationException("Brak Jwt:Key w konfiguracji.");
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication(o =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(opt =>
 {
@@ -53,9 +87,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSection["Issuer"],
-        ValidAudience = jwtSection["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(keyBytes)
+        ValidIssuer = jwt["Issuer"],
+        ValidAudience = jwt["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.FromMinutes(1)
     };
 });
 
@@ -64,15 +99,18 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("frontend", p =>
-        p.WithOrigins(
-            "http://localhost:5173",
-            "http://localhost:5174"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod());
+        p.WithOrigins("http://localhost:5173", "http://localhost:5174")
+         .AllowAnyHeader()
+         .AllowAnyMethod());
 });
 
+builder.Services.Configure<RouteOptions>(o => o.LowercaseUrls = true);
+
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -86,25 +124,71 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await db.Database.MigrateAsync();
-
-    var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    if (!await roleMgr.RoleExistsAsync("Client")) await roleMgr.CreateAsync(new IdentityRole("Client"));
-    if (!await roleMgr.RoleExistsAsync("Admin")) await roleMgr.CreateAsync(new IdentityRole("Admin"));
-}
-
 app.MapGet("/routes", (IEnumerable<EndpointDataSource> sources) =>
 {
     var routes = sources
         .SelectMany(s => s.Endpoints)
         .OfType<RouteEndpoint>()
         .Select(e => e.RoutePattern.RawText)
+        .Where(x => !string.IsNullOrWhiteSpace(x))
         .Distinct()
         .OrderBy(x => x);
 
     return Results.Ok(routes);
 });
+
+await SeedIdentityAsync(app);
+
 app.Run();
+
+static async Task SeedIdentityAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<UserApp>>();
+
+    string[] roles = { "USER", "ADMIN" };
+
+    foreach (var r in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(r))
+        {
+            var createdRole = await roleManager.CreateAsync(new IdentityRole(r));
+            if (!createdRole.Succeeded)
+            {
+                var msg = string.Join("; ", createdRole.Errors.Select(e => e.Description));
+                throw new Exception($"Nie udało się utworzyć roli {r}: {msg}");
+            }
+        }
+    }
+
+    var adminEmail = "admin@physiotech.com";
+    var admin = await userManager.FindByEmailAsync(adminEmail);
+
+    if (admin == null)
+    {
+        admin = new UserApp
+        {
+            UserName = adminEmail,
+            Email = adminEmail
+        };
+
+        var created = await userManager.CreateAsync(admin, "Admin123!");
+        if (!created.Succeeded)
+        {
+            var msg = string.Join("; ", created.Errors.Select(e => e.Description));
+            throw new Exception($"Nie udało się utworzyć admina: {msg}");
+        }
+
+        var addRole = await userManager.AddToRoleAsync(admin, "ADMIN");
+        if (!addRole.Succeeded)
+        {
+            var msg = string.Join("; ", addRole.Errors.Select(e => e.Description));
+            throw new Exception($"Nie udało się przypisać roli ADMIN: {msg}");
+        }
+    }
+}

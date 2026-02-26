@@ -9,12 +9,6 @@ export type Device = {
   isActive: boolean;
 };
 
-export type Step = {
-  title: string;
-  desc: string;
-  details: string[];
-};
-
 export type FaqItem = {
   q: string;
   a: string;

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "../../auth/AuthContext";
 
 type Props = {
-  onClose: () => void;
+  onAuthed?: () => void;
 };
 
-export default function AuthPanel({ onClose }: Props) {
+export default function AccountAuth({ onAuthed }: Props) {
   const { login, registerAndLogin } = useAuth();
 
   const [loginEmail, setLoginEmail] = useState("");
@@ -24,6 +24,7 @@ export default function AuthPanel({ onClose }: Props) {
     setBusy(true);
     try {
       await login(loginEmail.trim(), loginPassword);
+      onAuthed?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -43,6 +44,7 @@ export default function AuthPanel({ onClose }: Props) {
     setBusy(true);
     try {
       await registerAndLogin(email, regPassword);
+      onAuthed?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -51,24 +53,7 @@ export default function AuthPanel({ onClose }: Props) {
   }
 
   return (
-    <section className="rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold">Konto</h2>
-          <p className="mt-1 text-sm text-slate-600">
-            Zaloguj się lub załóż konto, aby rozpocząć wypożyczenie.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-full px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
-        >
-          Zamknij
-        </button>
-      </div>
-
+    <>
       {error && (
         <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm text-red-700 ring-1 ring-red-200">
           {error}
@@ -77,7 +62,7 @@ export default function AuthPanel({ onClose }: Props) {
 
       <div className="mt-6 grid gap-6 md:grid-cols-2">
         <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200/60">
-          <h3 className="font-medium">Logowanie</h3>
+          <h3 className="font-medium">Zaloguj</h3>
 
           <form
             className="mt-4 grid gap-3"
@@ -94,7 +79,6 @@ export default function AuthPanel({ onClose }: Props) {
               onChange={(e) => setLoginEmail(e.target.value)}
               disabled={busy}
             />
-
             <input
               className="h-11 rounded-xl px-4 ring-1 ring-slate-200 bg-white"
               placeholder="Hasło"
@@ -116,7 +100,7 @@ export default function AuthPanel({ onClose }: Props) {
         </div>
 
         <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200/60">
-          <h3 className="font-medium">Rejestracja</h3>
+          <h3 className="font-medium">Załóż konto</h3>
 
           <form
             className="mt-4 grid gap-3"
@@ -133,7 +117,6 @@ export default function AuthPanel({ onClose }: Props) {
               onChange={(e) => setRegEmail(e.target.value)}
               disabled={busy}
             />
-
             <input
               className="h-11 rounded-xl px-4 ring-1 ring-slate-200 bg-white"
               placeholder="Hasło"
@@ -143,7 +126,6 @@ export default function AuthPanel({ onClose }: Props) {
               onChange={(e) => setRegPassword(e.target.value)}
               disabled={busy}
             />
-
             <input
               className="h-11 rounded-xl px-4 ring-1 ring-slate-200 bg-white"
               placeholder="Powtórz hasło"
@@ -175,6 +157,6 @@ export default function AuthPanel({ onClose }: Props) {
           </form>
         </div>
       </div>
-    </section>
+    </>
   );
 }

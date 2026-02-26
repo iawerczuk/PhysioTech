@@ -12,5 +12,7 @@ public class RentalDetail
 
     public int Quantity { get; set; }
 
-    public decimal PricePerDaySnapshot { get; set; }
+    public decimal PricePerDay { get; set; }
+
+    public decimal Deposit { get; set; }
 }

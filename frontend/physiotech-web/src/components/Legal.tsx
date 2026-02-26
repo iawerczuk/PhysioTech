@@ -15,7 +15,6 @@ export default function Legal({ open, title, children, onClose }: Props) {
       aria-modal="true"
       aria-label={title}
     >
-      {/* overlay */}
       <button
         type="button"
         onClick={onClose}
@@ -23,7 +22,6 @@ export default function Legal({ open, title, children, onClose }: Props) {
         aria-label="Zamknij"
       />
 
-      {/* modal */}
       <div className="relative mx-auto mt-16 w-[min(900px,92vw)]">
         <div className="rounded-2xl bg-white ring-1 ring-slate-200/70 shadow-lg overflow-hidden">
           <div className="flex items-start justify-between gap-4 px-6 py-4 border-b border-slate-200/70">

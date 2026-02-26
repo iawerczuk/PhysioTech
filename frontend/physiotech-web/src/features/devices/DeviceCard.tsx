@@ -3,9 +3,10 @@ import { DEVICE_IMAGE_BY_ID } from "./deviceImages";
 
 type Props = {
   device: Device;
+  onRent: () => void;
 };
 
-export default function DeviceCard({ device }: Props) {
+export default function DeviceCard({ device, onRent }: Props) {
   const img = DEVICE_IMAGE_BY_ID[device.id];
 
   return (
@@ -28,35 +29,38 @@ export default function DeviceCard({ device }: Props) {
       <div className="p-6 flex-1 flex flex-col">
         <h3 className="text-lg font-semibold text-slate-900">{device.name}</h3>
 
-        <p className="mt-2 text-sm text-slate-600">
-          {device.shortDescription}
-        </p>
+        <p className="mt-2 text-sm text-slate-600">{device.shortDescription}</p>
 
-            <dl className="mt-5 text-sm">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-          <dt className="text-slate-500">Cena za dzień</dt>
-          <dd className="text-right font-semibold text-slate-900">
-            {device.pricePerDay} zł
-          </dd>
+        <dl className="mt-5 text-sm">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+            <dt className="text-slate-500">Cena za dzień</dt>
+            <dd className="text-right font-semibold text-slate-900">
+              {device.pricePerDay} zł
+            </dd>
 
-          <dt className="text-slate-500">Kaucja</dt>
-          <dd className="text-right font-semibold text-slate-900">
-            {device.deposit} zł
-          </dd>
+            <dt className="text-slate-500">Kaucja</dt>
+            <dd className="text-right font-semibold text-slate-900">
+              {device.deposit} zł
+            </dd>
 
-          <dt className="text-slate-500">Dostępne</dt>
-          <dd className="text-right font-semibold text-slate-900">
-            {device.availableCount} szt.
-          </dd>
+            <dt className="text-slate-500">Dostępne</dt>
+            <dd className="text-right font-semibold text-slate-900">
+              {device.availableCount}
+              <div className="text-xs font-medium text-slate-500">szt.</div>
+            </dd>
+          </div>
+        </dl>
+
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={onRent}
+            className="h-11 w-full rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
+          >
+            Wypożycz
+          </button>
         </div>
-      </dl>
-      </div>  
-        <button
-          type="button"
-          className="mt-6 h-11 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition"
-        >
-          Wypożycz
-        </button>
+      </div>
     </article>
   );
 }

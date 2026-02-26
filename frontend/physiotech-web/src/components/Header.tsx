@@ -1,9 +1,11 @@
 import Navbar from "./Navbar";
 import ptLogo from "../assets/pt.png";
 
+type ActivePanel = "none" | "konto" | "rental";
+
 type Props = {
-  activePanel: "none" | "konto";
-  onSelectPanel: (v: "none" | "konto") => void;
+  activePanel: ActivePanel;
+  onSelectPanel: (v: ActivePanel) => void;
 };
 
 export default function Header({ activePanel, onSelectPanel }: Props) {
@@ -19,7 +21,10 @@ export default function Header({ activePanel, onSelectPanel }: Props) {
         </a>
 
         <div className="flex items-center gap-3">
-          <Navbar active={activePanel} onSelect={onSelectPanel} />
+          <Navbar
+            active={activePanel}
+            onSelect={(v: ActivePanel) => onSelectPanel(v)}
+          />
 
           <a
             href="#kontakt"

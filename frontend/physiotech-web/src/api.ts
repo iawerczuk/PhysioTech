@@ -1,5 +1,5 @@
+const KEY = "pt_access_token";
 const DEFAULT_API = "http://127.0.0.1:5231";
-const TOKEN_KEY = "pt_access_token";
 
 function getApiUrl() {
   const v = (import.meta.env.VITE_API_URL as string | undefined) ?? DEFAULT_API;
@@ -7,85 +7,116 @@ function getApiUrl() {
 }
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(KEY);
 }
 
 export function setToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(KEY, token);
 }
 
 export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(KEY);
 }
 
-type ApiError = Error & { status?: number };
+function buildUrl(path: string) {
+  return `${getApiUrl()}${path.startsWith("/") ? "" : "/"}${path}`;
+}
 
-async function apiRequest<T>(
-  method: "GET" | "POST",
-  path: string,
-  body?: unknown,
-  init?: RequestInit
-): Promise<T> {
-  const url = `${getApiUrl()}${path.startsWith("/") ? "" : "/"}${path}`;
+async function readError(res: Response) {
+  const ct = res.headers.get("content-type") ?? "";
+  if (ct.includes("application/json")) {
+    const j = await res.json().catch(() => null);
+    return j ? JSON.stringify(j) : `HTTP ${res.status}`;
+  }
+  const txt = await res.text().catch(() => "");
+  return txt ? txt : `HTTP ${res.status}`;
+}
 
+export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const url = buildUrl(path);
   const token = getToken();
 
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-    ...(body ? { "Content-Type": "application/json" } : {}),
-  };
-
-  if (token) headers.Authorization = `Bearer ${token}`;
-
   const res = await fetch(url, {
-    method,
     ...init,
-    headers: { ...headers, ...(init?.headers as any) },
-    body: body ? JSON.stringify(body) : undefined,
+    headers: {
+      Accept: "application/json",
+      ...(init?.body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(init?.headers ?? {}),
+    },
   });
 
   if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    const err: ApiError = new Error(`HTTP ${res.status}${txt ? `: ${txt}` : ""}`);
-    err.status = res.status;
-    throw err;
+    if (res.status === 401) clearToken();
+    throw new Error(await readError(res));
   }
 
-  if (res.status === 204) return undefined as T;
-
-  return (await res.json()) as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : (null as T)) as T;
 }
 
 export function apiGet<T>(path: string, init?: RequestInit) {
-  return apiRequest<T>("GET", path, undefined, init);
+  return apiRequest<T>(path, { ...init, method: "GET" });
 }
 
 export function apiPost<T>(path: string, body?: unknown, init?: RequestInit) {
-  return apiRequest<T>("POST", path, body, init);
+  return apiRequest<T>(path, {
+    ...init,
+    method: "POST",
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
 }
 
-export type AuthTokenResponse = {
-  accessToken: string;
-  expiresUtc: string;
-  roles: string[];
-};
-
-export type MeResponse = {
-  userId: string;
-  email: string;
-  roles: string[];
-};
-
 export async function apiLogin(email: string, password: string) {
-  const res = await apiPost<AuthTokenResponse>("/api/Auth/login", { email, password });
-  setToken(res.accessToken);
-  return res;
+  const r = await apiPost<{ accessToken: string }>("/api/auth/login", { email, password });
+  if (!r?.accessToken) throw new Error("Brak accessToken w odpowiedzi.");
+  setToken(r.accessToken);
+  return r.accessToken;
 }
 
 export async function apiRegister(email: string, password: string) {
-  return apiPost<{ ok: boolean } | any>("/api/Auth/register", { email, password });
+  await apiPost("/api/auth/register", { email, password });
 }
 
-export async function apiMe() {
-  return apiGet<MeResponse>("/api/Me");
+  export async function apiMe() {
+  return apiGet<{
+    userId?: string;
+    email: string;
+    roles?: string[];
+    firstName?: string | null;
+    lastName?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    companyName?: string | null;
+    nip?: string | null;
+    needInvoice?: boolean;
+  }>("/api/me");
+}
+
+export type CreateRentalBody = {
+  startDate: string;
+  endDate: string;
+  items: { deviceId: number; quantity: number }[];
+};
+
+export async function apiCreateRental(body: CreateRentalBody) {
+  return apiPost("/api/rentals", body);
+}
+
+export function authHeaders() {
+  const t = getToken();
+  return t ? { Authorization: `Bearer ${t}` } : {};
+}
+
+export async function apiMyRentals() {
+  return apiGet<import("./features/rentals/rentalTypes").MyRental[]>("/api/rentals/my", {
+    headers: { ...authHeaders() },
+  });
+}
+export async function apiUpdateMe(payload: any) {
+  return apiRequest<void>("/api/me", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 }

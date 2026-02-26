@@ -4,7 +4,6 @@ public class CreateRentalRequest
 {
     public DateOnly StartDate { get; set; }
     public DateOnly EndDate { get; set; }
-
     public List<CreateRentalItemRequest> Items { get; set; } = new();
 }
 

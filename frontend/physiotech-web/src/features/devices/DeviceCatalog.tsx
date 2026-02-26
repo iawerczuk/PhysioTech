@@ -23,12 +23,12 @@ const DEVICE_CATEGORY_MAP: Record<number, Category[]> = {
 
 type Props = {
   onRequireAuth: () => void;
+  onRentClick: (device: Device) => void;
 };
 
-export default function DeviceCatalog({ onRequireAuth }: Props) {
+export default function DeviceCatalog({ onRequireAuth, onRentClick }: Props) {
   const [devices, setDevices] = useState<Device[]>([]);
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category>("Wszystkie");
+  const [selectedCategory, setSelectedCategory] = useState<Category>("Wszystkie");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +56,6 @@ export default function DeviceCatalog({ onRequireAuth }: Props) {
     <section id="sprzet" className="mt-16 scroll-mt-24">
       <div className="flex items-end justify-between gap-4">
         <h2 className="text-xl font-semibold">Sprzęt</h2>
-
       </div>
 
       <div className="mt-6 flex flex-wrap gap-3">
@@ -88,16 +87,14 @@ export default function DeviceCatalog({ onRequireAuth }: Props) {
       {!loading && !error && (
         <>
           {filteredDevices.length === 0 ? (
-            <p className="mt-8 text-slate-500">
-              Brak urządzeń w tej kategorii.
-            </p>
+            <p className="mt-8 text-slate-500">Brak urządzeń w tej kategorii.</p>
           ) : (
             <div className="mt-8 grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredDevices.map((d) => (
-                <DeviceCard
-                  key={d.id}
-                  device={d}
-                  onRequireAuth={onRequireAuth}
+                <DeviceCard 
+                key={d.id} 
+                device={d} 
+                onRent={() => onRentClick(d)} 
                 />
               ))}
             </div>

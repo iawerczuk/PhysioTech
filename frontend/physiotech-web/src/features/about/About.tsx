@@ -1,12 +1,10 @@
 export default function About() {
   return (
     <section id="o-nas" className="mt-14 scroll-mt-24">
-      {/* Nagłówek sekcji jak w innych */}
       <div className="flex items-end justify-between gap-4">
         <h2 className="text-xl font-semibold">O nas</h2>
       </div>
 
-      {/* Duży nagłówek (2 linie, 2 kolory) */}
       <h3 className="mt-6 text-2xl sm:text-3xl font-extrabold tracking-tight leading-[1.25]">
         <span className="block text-[#102363]">
           Wiedza medyczna wsparta technologią.
@@ -26,23 +24,18 @@ export default function About() {
           jedna z najszybszych dróg do sprawności.
         </p>
 
-        {/* Cytat */}
         <div className="mt-6 rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm">
           <p className="text-base text-slate-800 leading-relaxed">
-            <span className="font-semibold text-[#102363]">Wierzę, że</span>{" "}
-            technologia nie jest celem samym w sobie, lecz sprawdzonym narzędziem
+            Wierzę, że technologia nie jest celem samym w sobie, lecz sprawdzonym narzędziem
             w rękach specjalisty.
           </p>
         </div>
 
         <p className="mt-6">
-          Udostępniam wyłącznie sprzęt, który osobiście stosuję w pracy z
-          pacjentami. Bez przypadkowych rozwiązań, tylko technologie, które
-          realnie przyspieszają regenerację i pomagają wrócić do aktywności.
-        </p>
+        Zyskaj dostęp do technologii, które osobiście wykorzystuję w profesjonalnej opiece nad pacjentami. Stawiam na zaawansowane 
+        rozwiązania przyspieszające odnowę biologiczną, aby Twój powrót do sprawności był maksymalnie efektywny i komfortowy.</p>
       </div>
 
-      {/* Kafelki */}
       <div className="mt-12 grid gap-5 sm:grid-cols-3">
         <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm">
           <div className="flex items-center gap-3">
@@ -50,14 +43,13 @@ export default function About() {
               <span className="text-emerald-700 font-semibold">✓</span>
             </div>
             <div className="text-sm font-semibold text-slate-900">
-              Transparentność
+              Jasne zasady
             </div>
           </div>
 
           <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-            Jasna stawka dobowa i zwrotna kaucja. Skup się na regeneracji, nie na
-            zawiłych umowach.
-          </p>
+           Proste rozliczenia to komfort i spokojna głowa. Dzięki przejrzystej stawce dobowej oraz zwrotnej kaucji możesz w pełni skoncentrować 
+           się na tym, co dla Ciebie najważniejsze – na regeneracji oraz skutecznym powrocie do pełnej sprawności. </p>
         </div>
 
         <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm">
@@ -66,14 +58,13 @@ export default function About() {
               <span className="text-[#102363] font-semibold">⏱</span>
             </div>
             <div className="text-sm font-semibold text-slate-900">
-              Czas to regeneracja
+              Czas na Twoją odnowę
             </div>
           </div>
 
           <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-            Intuicyjny proces zamówienia online. Każdy dzień bez wsparcia to
-            dzień stracony dla Twoich mięśni.
-          </p>
+           Twoja odnowa biologiczna zaczyna się tutaj. Intuicyjny proces zamówienia online sprawia, że profesjonalne wsparcie 
+           trafia do Ciebie błyskawicznie, zapewniając Twojemu organizmowi optymalne warunki do regeneracji już od pierwszego dnia. </p>
         </div>
 
         <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200/70 shadow-sm">
@@ -87,9 +78,9 @@ export default function About() {
           </div>
 
           <p className="mt-3 text-sm text-slate-600 leading-relaxed">
-            Korzystasz ze sprzętu wyselekcjonowanego przez fizjoterapeutę
-            ortopedycznego. To technologia, która realnie działa.
-          </p>
+            Korzystasz z rozwiązań, którym ufają profesjonaliści. Sprzęt został starannie wyselekcjonowany przez fizjoterapeutę ortopedycznego,
+             co gwarantuje Ci dostęp do bezpiecznej i najskuteczniejszej technologii stosowanej w nowoczesnej rehabilitacji.
+             </p>
         </div>
       </div>
     </section>

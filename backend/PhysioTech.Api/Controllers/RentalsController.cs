@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,7 @@ using PhysioTech.Api.Models;
 namespace PhysioTech.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-[Authorize]
+[Route("api/rentals")]
 public class RentalsController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -20,139 +20,110 @@ public class RentalsController : ControllerBase
         _db = db;
     }
 
-    [HttpGet("me")]
+    [Authorize]
+    [HttpGet("my")]
     public async Task<IActionResult> MyRentals()
     {
         var userId =
             User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? User.FindFirstValue("sub");
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
         if (string.IsNullOrWhiteSpace(userId))
-            return Unauthorized();
+            return Unauthorized(new { message = "Brak identyfikatora użytkownika w tokenie." });
 
         var rentals = await _db.Rentals
+            .AsNoTracking()
             .Where(r => r.UserId == userId)
             .OrderByDescending(r => r.Id)
             .Select(r => new
             {
-                r.Id,
-                r.StartDate,
-                r.EndDate,
-                r.Status,
-                Items = r.Details.Select(d => new
+                id = r.Id,
+                startDate = r.StartDate,
+                endDate = r.EndDate,
+                status = r.Status.ToString(),
+                createdAt = r.CreatedAt,
+                devices = r.Details.Select(x => new
                 {
-                    d.DeviceId,
-                    DeviceName = d.Device != null ? d.Device.Name : null,
-                    d.Quantity,
-                    d.PricePerDaySnapshot
-                })
+                    deviceId = x.DeviceId,
+                    deviceName = x.Device.Name,
+                    quantity = x.Quantity,
+                    pricePerDay = x.PricePerDay,
+                    deposit = x.Deposit
+                }).ToList()
             })
             .ToListAsync();
 
         return Ok(rentals);
     }
+
+    [Authorize]
     [HttpPost]
-public async Task<IActionResult> CreateRental([FromBody] CreateRentalDto request)
-{
-    var userId =
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub");
-
-    if (string.IsNullOrWhiteSpace(userId))
-        return Unauthorized();
-
-    if (request.Items == null || request.Items.Count == 0)
-        return BadRequest("Items are required.");
-
-    if (request.EndDate < request.StartDate)
-        return BadRequest("EndDate must be >= StartDate.");
-
-    if (request.Items.Any(i => i.Quantity <= 0))
-        return BadRequest("Quantity must be > 0.");
-
-    var deviceIds = request.Items.Select(i => i.DeviceId).Distinct().ToList();
-
-    var devices = await _db.Devices
-        .Where(d => deviceIds.Contains(d.Id))
-        .ToListAsync();
-
-    if (devices.Count != deviceIds.Count)
-        return BadRequest("One or more devices do not exist.");
-
-    foreach (var item in request.Items)
+    public async Task<IActionResult> CreateRental([FromBody] CreateRentalRequest req)
     {
-        var device = devices.First(d => d.Id == item.DeviceId);
+        var userId =
+            User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-        if (device.AvailableQuantity < item.Quantity)
-            return BadRequest($"Device '{device.Name}' has not enough availability.");
-    }
+        if (string.IsNullOrWhiteSpace(userId))
+            return Unauthorized(new { message = "Brak identyfikatora użytkownika w tokenie." });
 
-    var rental = new Rental
-    {
-        UserId = userId,
-        StartDate = request.StartDate,
-        EndDate = request.EndDate,
-        Status = RentalStatus.Draft
-    };
+        if (req.Items == null || req.Items.Count == 0)
+            return BadRequest(new { message = "Lista Items nie może być pusta." });
 
-    foreach (var item in request.Items)
-    {
-        var device = devices.First(d => d.Id == item.DeviceId);
+        if (req.EndDate < req.StartDate)
+            return BadRequest(new { message = "EndDate nie może być wcześniejsza niż StartDate." });
 
-        rental.Details.Add(new RentalDetail
+        var deviceIds = req.Items.Select(i => i.DeviceId).Distinct().ToList();
+
+        var devices = await _db.Devices
+            .Where(d => deviceIds.Contains(d.Id) && d.IsActive)
+            .ToListAsync();
+
+        if (devices.Count != deviceIds.Count)
+            return BadRequest(new { message = "Jedno lub więcej urządzeń nie istnieje lub jest nieaktywne." });
+
+        foreach (var item in req.Items)
         {
-            DeviceId = device.Id,
-            Quantity = item.Quantity,
-            PricePerDaySnapshot = device.PricePerDay
+            if (item.Quantity <= 0)
+                return BadRequest(new { message = "Quantity musi być > 0." });
+
+            var dev = devices.First(d => d.Id == item.DeviceId);
+
+            if (item.Quantity > dev.AvailableQuantity)
+                return BadRequest(new
+                {
+                    message = $"Brak dostępnej ilości dla: {dev.Name}. Dostępne: {dev.AvailableQuantity}"
+                });
+        }
+
+        var rental = new Rental
+        {
+            UserId = userId,
+            StartDate = req.StartDate,
+            EndDate = req.EndDate,
+            Status = RentalStatus.Draft,
+            CreatedAt = DateTime.UtcNow,
+            Details = req.Items.Select(i =>
+            {
+                var dev = devices.First(d => d.Id == i.DeviceId);
+
+                return new RentalDetail
+                {
+                    DeviceId = dev.Id,
+                    Quantity = i.Quantity,
+                    PricePerDay = dev.PricePerDay,
+                    Deposit = dev.Deposit
+                };
+            }).ToList()
+        };
+
+        _db.Rentals.Add(rental);
+        await _db.SaveChangesAsync();
+
+        return StatusCode(201, new
+        {
+            id = rental.Id,
+            message = "Wypożyczenie utworzone."
         });
-
-        device.AvailableQuantity -= item.Quantity;
     }
-
-    _db.Rentals.Add(rental);
-    await _db.SaveChangesAsync();
-
-    return CreatedAtAction(nameof(MyRentals), new { }, new { rentalId = rental.Id });
-}
-[HttpPost("{id:int}/cancel")]
-public async Task<IActionResult> Cancel(int id)
-{
-    var userId =
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub");
-
-    if (string.IsNullOrWhiteSpace(userId))
-        return Unauthorized();
-
-    var rental = await _db.Rentals
-        .Include(r => r.Details)
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (rental == null)
-        return NotFound();
-
-    if (rental.UserId != userId)
-        return Forbid();
-
-    if (rental.Status == RentalStatus.Paid)
-        return BadRequest("Paid rental cannot be cancelled.");
-
-    if (rental.Status == RentalStatus.Cancelled)
-        return BadRequest("Rental is already cancelled.");
-
-    var deviceIds = rental.Details.Select(d => d.DeviceId).Distinct().ToList();
-    var devices = await _db.Devices.Where(d => deviceIds.Contains(d.Id)).ToListAsync();
-
-    foreach (var detail in rental.Details)
-    {
-        var device = devices.First(d => d.Id == detail.DeviceId);
-        device.AvailableQuantity += detail.Quantity;
-    }
-
-    rental.Status = RentalStatus.Cancelled;
-
-    await _db.SaveChangesAsync();
-
-    return Ok(new { rentalId = rental.Id, status = rental.Status });
-}
 }

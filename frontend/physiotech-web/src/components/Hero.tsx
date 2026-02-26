@@ -54,8 +54,8 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="flex justify-center lg:justify-end">
-            <img
+        <div className="flex justify-center lg:justify-end lg:pr-38">            
+          <img
               src={heroLogo}
               alt="PhysioTech"
               className="h-44 w-auto object-contain drop-shadow-sm lg:-mr-6"

@@ -9,4 +9,6 @@ public class Rental
     public RentalStatus Status { get; set; } = RentalStatus.Draft;
 
     public List<RentalDetail> Details { get; set; } = new();
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -1,29 +1,35 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { apiLogin, apiMe, apiRegister, clearToken, getToken } from "../api";
 
-type User = {
-  userId: string;
+export type UserMe = {
+  userId?: string;
   email: string;
-  roles: string[];
+  roles?: string[];
+  firstName?: string | null;
+  lastName?: string | null;
+
+  address?: string | null;
+  city?: string | null;
+  postalCode?: string | null;
+  companyName?: string | null;
+  nip?: string | null;
+  needInvoice?: boolean;
 };
 
-type AuthState = {
-  user: User | null;
-  isReady: boolean;
-  isLoggedIn: boolean;
-  refreshMe: () => Promise<void>;
+type AuthContextValue = {
+  user: UserMe | null;
   login: (email: string, password: string) => Promise<void>;
   registerAndLogin: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  refreshMe: () => Promise<void>;
 };
 
-const AuthCtx = createContext<AuthState | null>(null);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [user, setUser] = useState<UserMe | null>(null);
 
-  async function refreshMe() {
+  const refreshMe = useCallback(async () => {
     const token = getToken();
     if (!token) {
       setUser(null);
@@ -32,51 +38,69 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const me = await apiMe();
-      setUser({ userId: me.userId, email: me.email, roles: me.roles ?? [] });
+
+      if (!me?.email) {
+        setUser(null);
+        return;
+      }
+
+      setUser({
+        userId: me.userId,
+        email: me.email,
+        roles: me.roles ?? [],
+
+        firstName: me.firstName ?? null,
+        lastName: me.lastName ?? null,
+
+        address: me.address ?? null,
+        city: me.city ?? null,
+        postalCode: me.postalCode ?? null,
+        companyName: me.companyName ?? null,
+        nip: me.nip ?? null,
+        needInvoice: me.needInvoice ?? false,
+      });
     } catch {
       clearToken();
       setUser(null);
     }
-  }
-
-  useEffect(() => {
-    refreshMe().finally(() => setIsReady(true));
   }, []);
 
-  async function login(email: string, password: string) {
-    await apiLogin(email, password);
-    await refreshMe();
-  }
+  useEffect(() => {
+    void refreshMe();
+  }, [refreshMe]);
 
-  async function registerAndLogin(email: string, password: string) {
-    await apiRegister(email, password);
-    await apiLogin(email, password);
-    await refreshMe();
-  }
-
-  function logout() {
-    clearToken();
-    setUser(null);
-  }
-
-  const value = useMemo<AuthState>(
-    () => ({
-      user,
-      isReady,
-      isLoggedIn: !!user,
-      refreshMe,
-      login,
-      registerAndLogin,
-      logout,
-    }),
-    [user, isReady]
+  const login = useCallback(
+    async (email: string, password: string) => {
+      await apiLogin(email, password);
+      await refreshMe();
+    },
+    [refreshMe]
   );
 
-  return <AuthCtx.Provider value={value}>{children}</AuthCtx.Provider>;
+  const registerAndLogin = useCallback(
+    async (email: string, password: string) => {
+      await apiRegister(email, password);
+      await apiLogin(email, password);
+      await refreshMe();
+    },
+    [refreshMe]
+  );
+
+  const logout = useCallback(() => {
+    clearToken();
+    setUser(null);
+  }, []);
+
+  const value = useMemo<AuthContextValue>(
+    () => ({ user, login, registerAndLogin, logout, refreshMe }),
+    [user, login, registerAndLogin, logout, refreshMe]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const v = useContext(AuthCtx);
-  if (!v) throw new Error("useAuth must be used inside <AuthProvider>");
-  return v;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth musi być użyty wewnątrz AuthProvider.");
+  return ctx;
 }
