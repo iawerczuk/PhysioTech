@@ -89,8 +89,7 @@ export default function HistorySection({
       )}
 
       {!rentalsBusy && rentals.length > 0 && (
-        <div className="mt-4 grid gap-3">
-          {rentals.map((r) => (
+      <div className="mt-4 max-h-[420px] overflow-y-auto pr-2 grid gap-3">          {rentals.map((r) => (
             <button
               key={r.id}
               type="button"
