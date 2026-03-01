@@ -53,7 +53,7 @@ export default function DeviceCatalog({ onRequireAuth, onRentClick }: Props) {
   }, [devices, selectedCategory]);
 
   return (
-    <section id="sprzet" className="mt-16 scroll-mt-24">
+    <section id="sprzęt" className="mt-16 scroll-mt-24">
       <div className="flex items-end justify-between gap-4">
         <h2 className="text-xl font-semibold">Sprzęt</h2>
       </div>

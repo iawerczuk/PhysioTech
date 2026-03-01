@@ -9,7 +9,7 @@ type Props = {
 const NAV_ITEMS = [
   { id: "o-nas", label: "O nas" },
   { id: "jak-to-dziala", label: "Jak to działa" },
-  { id: "sprzet", label: "Sprzęt" },
+  { id: "sprzęt", label: "Sprzęt" },
   { id: "faq", label: "FAQ" },
 ] as const;
 

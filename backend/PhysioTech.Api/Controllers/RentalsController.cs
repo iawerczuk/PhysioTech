@@ -6,57 +6,59 @@ using Microsoft.EntityFrameworkCore;
 using PhysioTech.Api.Data;
 using PhysioTech.Api.Dtos;
 using PhysioTech.Api.Models;
+using PhysioTech.Api.Services;
 
 namespace PhysioTech.Api.Controllers;
 
 [ApiController]
 [Route("api/rentals")]
+[Authorize]
 public class RentalsController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly ICurrentUserService _currentUser;
 
-    public RentalsController(AppDbContext db)
+    public RentalsController(AppDbContext db, ICurrentUserService currentUser)
     {
         _db = db;
+        _currentUser = currentUser;
     }
 
-    [Authorize]
     [HttpGet("my")]
-    public async Task<IActionResult> MyRentals()
-    {
-        var userId =
-            User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+public async Task<IActionResult> MyRentals()
+{
+    var userId =
+        User.FindFirstValue(ClaimTypes.NameIdentifier)
+        ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-        if (string.IsNullOrWhiteSpace(userId))
-            return Unauthorized(new { message = "Brak identyfikatora użytkownika w tokenie." });
+    if (string.IsNullOrWhiteSpace(userId))
+        return Unauthorized(new { message = "Brak identyfikatora użytkownika w tokenie." });
 
-        var rentals = await _db.Rentals
-            .AsNoTracking()
-            .Where(r => r.UserId == userId)
-            .OrderByDescending(r => r.Id)
-            .Select(r => new
+    var rentals = await _db.Rentals
+        .AsNoTracking()
+        .Include(r => r.Details)
+            .ThenInclude(d => d.Device)
+        .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.Id)
+        .Select(r => new
+        {
+            id = r.Id,
+            startDate = r.StartDate,
+            endDate = r.EndDate,
+            days = r.EndDate.DayNumber - r.StartDate.DayNumber + 1,
+            status = r.Status.ToString(),
+            createdAt = r.CreatedAt,
+            items = r.Details.Select(x => new
             {
-                id = r.Id,
-                startDate = r.StartDate,
-                endDate = r.EndDate,
-                status = r.Status.ToString(),
-                createdAt = r.CreatedAt,
-                devices = r.Details.Select(x => new
-                {
-                    deviceId = x.DeviceId,
-                    deviceName = x.Device.Name,
-                    quantity = x.Quantity,
-                    pricePerDay = x.PricePerDay,
-                    deposit = x.Deposit
-                }).ToList()
-            })
-            .ToListAsync();
+                deviceId = x.DeviceId,
+                deviceName = x.Device.Name,
+                quantity = x.Quantity
+            }).ToList()
+        })
+        .ToListAsync();
 
-        return Ok(rentals);
-    }
-
-    [Authorize]
+    return Ok(rentals);
+}
     [HttpPost]
     public async Task<IActionResult> CreateRental([FromBody] CreateRentalRequest req)
     {
@@ -124,6 +126,43 @@ public class RentalsController : ControllerBase
         {
             id = rental.Id,
             message = "Wypożyczenie utworzone."
+        });
+    }  
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var user = await _currentUser.GetRequiredAsync(User);
+
+        var rental = await _db.Rentals
+            .AsNoTracking()
+            .Include(r => r.Details)
+                .ThenInclude(d => d.Device)
+            .FirstOrDefaultAsync(r => r.Id == id && r.UserId == user.Id);
+
+        if (rental == null) return NotFound();
+
+        var days = rental.EndDate.DayNumber - rental.StartDate.DayNumber + 1;
+
+        return Ok(new
+        {
+            id = rental.Id,
+            startDate = rental.StartDate,
+            endDate = rental.EndDate,
+            days,
+            status = rental.Status.ToString(),
+            createdAt = rental.CreatedAt,
+            items = rental.Details.Select(i => new
+            {
+                deviceId = i.DeviceId,
+                deviceName = i.Device.Name,
+                quantity = i.Quantity,
+                pricePerDay = i.PricePerDay,
+                deposit = i.Deposit,
+                itemDays = days,
+                totalRental = i.PricePerDay * i.Quantity * days,
+                totalDeposit = i.Deposit * i.Quantity
+            }).ToList()
         });
     }
 }

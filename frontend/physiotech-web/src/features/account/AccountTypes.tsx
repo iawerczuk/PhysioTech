@@ -1,4 +1,4 @@
-export type Tab = "wypozyczenie" | "dane" | "historia";
+export type Tab = "wypożyczenie" | "dane" | "historia";
 
 export type BillingForm = {
   address: string;

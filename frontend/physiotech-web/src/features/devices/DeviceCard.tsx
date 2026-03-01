@@ -45,8 +45,7 @@ export default function DeviceCard({ device, onRent }: Props) {
 
             <dt className="text-slate-500">Dostępne</dt>
             <dd className="text-right font-semibold text-slate-900">
-              {device.availableCount}
-              <div className="text-xs font-medium text-slate-500">szt.</div>
+              {device.availableQuantity} szt.
             </dd>
           </div>
         </dl>

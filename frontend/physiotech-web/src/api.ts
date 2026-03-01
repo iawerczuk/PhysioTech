@@ -78,20 +78,29 @@ export async function apiRegister(email: string, password: string) {
   await apiPost("/api/auth/register", { email, password });
 }
 
-  export async function apiMe() {
-  return apiGet<{
-    userId?: string;
-    email: string;
-    roles?: string[];
-    firstName?: string | null;
-    lastName?: string | null;
-    address?: string | null;
-    city?: string | null;
-    postalCode?: string | null;
-    companyName?: string | null;
-    nip?: string | null;
-    needInvoice?: boolean;
-  }>("/api/me");
+export type UserMeDto = {
+  userId?: string;
+  email: string;
+  roles?: string[];
+  firstName?: string | null;
+  lastName?: string | null;
+  address?: string | null;
+  city?: string | null;
+  postalCode?: string | null;
+  companyName?: string | null;
+  nip?: string | null;
+  needInvoice?: boolean;
+};
+
+export async function apiMe() {
+  return apiGet<UserMeDto>("/api/me");
+}
+
+export async function apiUpdateMe(payload: any) {
+  return apiRequest<void>("/api/me", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 }
 
 export type CreateRentalBody = {
@@ -100,23 +109,37 @@ export type CreateRentalBody = {
   items: { deviceId: number; quantity: number }[];
 };
 
+//export async function apiCreateRental(body: CreateRentalBody) {
+  //return apiPost<{ id: number; message?: string }>("/api/rentals", body);
+//}
+
 export async function apiCreateRental(body: CreateRentalBody) {
   return apiPost("/api/rentals", body);
 }
 
-export function authHeaders() {
-  const t = getToken();
-  return t ? { Authorization: `Bearer ${t}` } : {};
+export async function apiMyRentals() {
+  return apiGet<any[]>("/api/rentals/my");
 }
 
-export async function apiMyRentals() {
-  return apiGet<import("./features/rentals/rentalTypes").MyRental[]>("/api/rentals/my", {
-    headers: { ...authHeaders() },
-  });
-}
-export async function apiUpdateMe(payload: any) {
-  return apiRequest<void>("/api/me", {
-    method: "PUT",
-    body: JSON.stringify(payload),
-  });
+export type RentalDetailsDto = {
+  id: number;
+  startDate: string;
+  endDate: string;
+  days: number;
+  status: string;
+  createdAt?: string | null;
+  items: {
+    deviceId: number;
+    deviceName: string;
+    quantity: number;
+    pricePerDay: number;
+    deposit: number;
+    itemDays: number;
+    totalRental: number;
+    totalDeposit: number;
+  }[];
+};
+
+export function apiRentalDetails(id: number) {
+  return apiGet<RentalDetailsDto>(`/api/rentals/${id}`);
 }

@@ -8,7 +8,7 @@ type Props = {
   setItemDates: (deviceId: number, startDate: string, endDate: string) => void;
 };
 
-type Tab = "wypozyczenie" | "dane" | "historia";
+type Tab = "wypożyczenie" | "dane" | "historia";
 
 type BillingForm = {
   needInvoice: boolean;
@@ -89,7 +89,7 @@ export default function AccountDashboard({ cart, setItemDates }: Props) {
   const { user, logout, refreshMe } = useAuth();
   const isAuthed = !!user?.email;
 
-  const [tab, setTab] = useState<Tab>("wypozyczenie");
+  const [tab, setTab] = useState<Tab>("wypożyczenie");
 
   const [editMode, setEditMode] = useState(false);
   const [saveOk, setSaveOk] = useState<string | null>(null);
@@ -306,13 +306,13 @@ export default function AccountDashboard({ cart, setItemDates }: Props) {
           <button
             type="button"
             onClick={() => {
-              setTab("wypozyczenie");
+              setTab("wypożyczenie");
               setEditMode(false);
               setSaveOk(null);
               setSaveErr(null);
               setBillingErrors({});
             }}
-            className={tabBtn(tab === "wypozyczenie")}
+            className={tabBtn(tab === "wypożyczenie")}
           >
             Wypożyczenie
           </button>
@@ -379,7 +379,7 @@ export default function AccountDashboard({ cart, setItemDates }: Props) {
         </div>
       )}
 
-      {tab === "wypozyczenie" && (
+      {tab === "wypożyczenie" && (
         <div className="mt-8 grid gap-6 lg:grid-cols-4 items-start">
           <div className="lg:col-span-2 rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200/60">
             <h3 className="text-base font-semibold text-slate-900">Aktualne wypożyczenie</h3>

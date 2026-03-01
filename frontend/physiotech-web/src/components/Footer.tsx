@@ -16,9 +16,7 @@ export default function Footer() {
 
   const terms = useMemo(
     () => (
-      <div className="space-y-4">
-
-
+      <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
         <div>
           <h4 className="font-semibold text-slate-900">1. Informacje ogólne</h4>
           <ul className="mt-2 list-disc pl-5 space-y-1">
@@ -86,14 +84,14 @@ export default function Footer() {
 
   const privacy = useMemo(
     () => (
-      <div className="space-y-4">
-        <p className="text-slate-600">
+      <div className="space-y-4 text-sm text-slate-600 leading-relaxed">
+        <p className="italic">
           Polityka prywatności. Do użytku produkcyjnego wymaga dopasowania do realnych procesów i konsultacji.
         </p>
 
         <div>
           <h4 className="font-semibold text-slate-900">1. Administrator danych</h4>
-          <p className="mt-2">
+          <p className="mt-1">
             Administratorem danych jest PhysioTech, kontakt: kontakt@physiotech.pl.
           </p>
         </div>
@@ -101,26 +99,26 @@ export default function Footer() {
         <div>
           <h4 className="font-semibold text-slate-900">2. Jakie dane zbieramy</h4>
           <ul className="mt-2 list-disc pl-5 space-y-1">
-            <li>konto: e-mail, hasło (w postaci zaszyfrowanej), identyfikator użytkownika</li>
-            <li>zamówienia: wybrane urządzenia, terminy, statusy</li>
-            <li>kontakt: treść wiadomości, e-mail nadawcy</li>
-            <li>dane techniczne: logi bezpieczeństwa, dane diagnostyczne (minimalnie)</li>
+            <li>Konto: e-mail, hasło (zaszyfrowane), identyfikator użytkownika.</li>
+            <li>Zamówienia: wybrane urządzenia, terminy, statusy.</li>
+            <li>Kontakt: treść wiadomości, e-mail nadawcy.</li>
+            <li>Dane techniczne: logi bezpieczeństwa, dane diagnostyczne (minimalnie).</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-semibold text-slate-900">3. Cele i podstawy przetwarzania</h4>
           <ul className="mt-2 list-disc pl-5 space-y-1">
-            <li>realizacja umowy wypożyczenia</li>
-            <li>obsługa konta i logowania</li>
-            <li>kontakt i obsługa zgłoszeń</li>
-            <li>bezpieczeństwo serwisu (np. zapobieganie nadużyciom)</li>
+            <li>Realizacja umowy wypożyczenia.</li>
+            <li>Obsługa konta i logowania.</li>
+            <li>Kontakt i obsługa zgłoszeń.</li>
+            <li>Bezpieczeństwo serwisu (np. zapobieganie nadużyciom).</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-semibold text-slate-900">4. Przechowywanie danych</h4>
-          <p className="mt-2">
+          <p className="mt-1">
             Dane przechowujemy przez czas niezbędny do realizacji usługi i obowiązków prawnych. Logi bezpieczeństwa mogą być przechowywane krócej.
           </p>
         </div>
@@ -128,27 +126,24 @@ export default function Footer() {
         <div>
           <h4 className="font-semibold text-slate-900">5. Odbiorcy danych</h4>
           <ul className="mt-2 list-disc pl-5 space-y-1">
-            <li>dostawcy hostingu i infrastruktury</li>
-            <li>dostawcy płatności (docelowo)</li>
-            <li>firmy kurierskie (docelowo)</li>
+            <li>Dostawcy hostingu i infrastruktury.</li>
+            <li>Dostawcy płatności (docelowo).</li>
+            <li>Firmy kurierskie (docelowo).</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-semibold text-slate-900">6. Prawa użytkownika</h4>
           <ul className="mt-2 list-disc pl-5 space-y-1">
-            <li>dostęp do danych</li>
-            <li>sprostowanie</li>
-            <li>usunięcie lub ograniczenie</li>
-            <li>sprzeciw</li>
-            <li>przenoszenie danych</li>
+            <li>Dostęp do danych, sprostowanie, usunięcie lub ograniczenie.</li>
+            <li>Sprzeciw oraz przenoszenie danych.</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-semibold text-slate-900">7. Cookies</h4>
-          <p className="mt-2">
-            Serwis może używać cookies technicznych. Token logowania jest przechowywany w Local Storage jako <span className="font-medium">pt_access_token</span> (w projekcie).
+          <p className="mt-1">
+            Serwis może używać cookies technicznych. Token logowania jest przechowywany w Local Storage jako <span className="font-medium text-slate-900">pt_access_token</span>.
           </p>
         </div>
       </div>
@@ -158,25 +153,30 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="mt-16 border-t border-slate-200/70 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3 text-sm text-slate-600">
-              <img
-                src={iaLogo}
-                alt="PhysioTech"
-                className="h-9 w-auto object-contain"
-              />
-              <span className="font-semibold text-slate-900">PhysioTech</span>
-              <span className="text-slate-400">•</span>
-              <span>© {year}</span>
+      <footer className="mt-16 border-t border-slate-200/60 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto max-w-6xl px-6 py-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            
+            {/* Logo i Copyright */}
+            <div className="flex items-center gap-4 text-sm tracking-tight">
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={iaLogo}
+                  alt="PhysioTech"
+                  className="h-8 w-auto object-contain brightness-95 grayscale-[20%] hover:grayscale-0 transition-all"
+                />
+                <span className="font-bold text-slate-800">PhysioTech</span>
+              </div>
+              <span className="hidden h-4 w-px bg-slate-200 sm:block" /> 
+              <span className="text-slate-500 font-medium">© {year}</span>
             </div>
 
-            <div className="flex items-center gap-3 text-sm">
+            {/* Przyciski */}
+            <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setOpenDoc("terms")}
-                className="rounded-full px-4 py-2 text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:text-[#102363]"
+                className="rounded-full px-5 py-2 text-[13px] font-semibold text-slate-600 ring-1 ring-slate-200 transition-all duration-200 hover:bg-slate-50 hover:text-[#102363] hover:ring-slate-300 active:scale-95"
               >
                 Regulamin
               </button>
@@ -184,7 +184,7 @@ export default function Footer() {
               <button
                 type="button"
                 onClick={() => setOpenDoc("privacy")}
-                className="rounded-full px-4 py-2 text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 hover:text-[#102363]"
+                className="rounded-full px-5 py-2 text-[13px] font-semibold text-slate-600 ring-1 ring-slate-200 transition-all duration-200 hover:bg-slate-50 hover:text-[#102363] hover:ring-slate-300 active:scale-95"
               >
                 Polityka prywatności
               </button>

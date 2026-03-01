@@ -24,7 +24,7 @@ export default function Hero() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <a
-                href="#sprzet"
+                href="#sprzęt"
                 className="
                   h-11 rounded-full bg-emerald-600 px-6
                   inline-flex items-center justify-center

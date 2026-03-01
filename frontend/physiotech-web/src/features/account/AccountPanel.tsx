@@ -83,7 +83,7 @@ export default function AccountPanel({ open, onClose, cart, setItemDates, remove
 
   const { user, login, registerAndLogin, logout, refreshMe } = useAuth();
 
-  const [tab, setTab] = useState<Tab>("wypozyczenie");
+  const [tab, setTab] = useState<Tab>("wypożyczenie");
 
   const [busyAuth, setBusyAuth] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -136,7 +136,7 @@ export default function AccountPanel({ open, onClose, cart, setItemDates, remove
     if (!open) return;
 
     if (!user) {
-      setTab("wypozyczenie");
+      setTab("wypożyczenie");
       setEditMode(false);
       setSaveOk(null);
       setSaveErr(null);
@@ -370,9 +370,9 @@ export default function AccountPanel({ open, onClose, cart, setItemDates, remove
                   </div>
 
                   <TabButton
-                    active={tab === "wypozyczenie"}
+                    active={tab === "wypożyczenie"}
                     onClick={() => {
-                      setTab("wypozyczenie");
+                      setTab("wypożyczenie");
                       setEditMode(false);
                       setSaveOk(null);
                       setSaveErr(null);
@@ -413,7 +413,7 @@ export default function AccountPanel({ open, onClose, cart, setItemDates, remove
                     onClick={() => {
                       logout();
 
-                      setTab("wypozyczenie");
+                        setTab("wypożyczenie");
                       setEditMode(false);
                       setSaveOk(null);
                       setSaveErr(null);
@@ -578,7 +578,7 @@ export default function AccountPanel({ open, onClose, cart, setItemDates, remove
             </div>
           )}
 
-          {user && tab === "wypozyczenie" && (
+          {user && tab === "wypożyczenie" && (
             <RentalSection
               cart={cart}
               setItemDates={setItemDates}
