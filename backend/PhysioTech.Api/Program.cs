@@ -99,9 +99,14 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("frontend", p =>
-        p.WithOrigins("http://localhost:5173", "http://localhost:5174")
-         .AllowAnyHeader()
-         .AllowAnyMethod());
+        p.WithOrigins(
+            "http://localhost:5173",
+            "http://localhost:5174",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:5174"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod());
 });
 
 builder.Services.Configure<RouteOptions>(o => o.LowercaseUrls = true);
@@ -112,10 +117,16 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseSwagger();
-app.UseSwaggerUI();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("frontend");
 
@@ -124,20 +135,26 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapGet("/routes", (IEnumerable<EndpointDataSource> sources) =>
+if (app.Environment.IsDevelopment())
 {
-    var routes = sources
-        .SelectMany(s => s.Endpoints)
-        .OfType<RouteEndpoint>()
-        .Select(e => e.RoutePattern.RawText)
-        .Where(x => !string.IsNullOrWhiteSpace(x))
-        .Distinct()
-        .OrderBy(x => x);
+    app.MapGet("/routes", (IEnumerable<EndpointDataSource> sources) =>
+    {
+        var routes = sources
+            .SelectMany(s => s.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Select(e => e.RoutePattern.RawText)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct()
+            .OrderBy(x => x);
 
-    return Results.Ok(routes);
-});
+        return Results.Ok(routes);
+    });
+}
 
-await SeedIdentityAsync(app);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    await SeedIdentityAsync(app);
+}
 
 app.Run();
 
@@ -192,3 +209,5 @@ static async Task SeedIdentityAsync(WebApplication app)
         }
     }
 }
+
+public partial class Program { }
