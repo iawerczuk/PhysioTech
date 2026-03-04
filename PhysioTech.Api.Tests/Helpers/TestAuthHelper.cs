@@ -10,7 +10,6 @@ public static class TestAuthHelper
         var email = $"test_{Guid.NewGuid():N}@example.com";
         var password = "Test1234!";
 
-        // REGISTER
         var reg = await client.PostAsJsonAsync("/api/auth/register", new
         {
             email,
@@ -19,7 +18,6 @@ public static class TestAuthHelper
 
         reg.EnsureSuccessStatusCode();
 
-        // LOGIN
         var login = await client.PostAsJsonAsync("/api/auth/login", new
         {
             email,

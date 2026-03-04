@@ -22,24 +22,20 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            // usuń produkcyjne rejestracje bazy
             services.RemoveAll(typeof(DbContextOptions<AppDbContext>));
             services.RemoveAll(typeof(AppDbContext));
 
-            // SQLite in-memory trzymana na otwartym połączeniu
             _connection = new SqliteConnection("Data Source=:memory:;Cache=Shared");
             _connection.Open();
 
             services.AddDbContext<AppDbContext>(opt => opt.UseSqlite(_connection));
 
-            // budujemy provider aby zrobić seed
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
 
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             db.Database.EnsureCreated();
 
-            // seed minimalnych ról
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             string[] roles = { "USER", "ADMIN" };
 
@@ -51,7 +47,6 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
                 }
             }
 
-            // seed urządzeń do testów tylko jeśli ich nie ma
             if (!db.Devices.Any())
             {
                 db.Devices.AddRange(
@@ -76,8 +71,6 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
                 db.SaveChanges();
             }
 
-            // Wymuszenie przewidywalnego stanu dla testów:
-            // device 1 aktywny, device 2 nieaktywny
             var d1 = db.Devices.FirstOrDefault(d => d.Id == 1) ?? db.Devices.OrderBy(d => d.Id).FirstOrDefault();
             if (d1 is not null && !d1.IsActive)
             {
@@ -88,7 +81,6 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
 
             if (d2 is null)
             {
-                // jeśli nie ma id=2, wybierz inne niż d1 i ustaw jako nieaktywne
                 d2 = db.Devices
                     .OrderBy(d => d.Id)
                     .FirstOrDefault(d => d1 == null || d.Id != d1.Id);
