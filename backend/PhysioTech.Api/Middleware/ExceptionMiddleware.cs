@@ -1,6 +1,5 @@
 using System.Net;
 using System.Text.Json;
-
 namespace PhysioTech.Api.Middleware;
 
 public class ExceptionMiddleware
