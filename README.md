@@ -1,6 +1,3 @@
----
-
-```markdown
 # PhysioTech
 
 **System internetowy wspierający wypożyczanie nowoczesnego sprzętu rehabilitacyjnego.**
