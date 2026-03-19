@@ -63,3 +63,4 @@ export default function DeviceCard({ device, onRent }: Props) {
     </article>
   );
 }
+//pictures from https://pl.freepik.com dostęp dn.3.02.2026, https://almamed.pl/, https://nowoczesnysport.pl/
